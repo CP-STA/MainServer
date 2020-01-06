@@ -1,0 +1,161 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+    <!-- Required meta tags -->
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+
+    <!-- Optional JavaScript -->
+    <!-- jQuery first, then Popper.js, then Bootstrap JS -->
+    <script src="https://code.jquery.com/jquery-3.4.1.min.js">
+    </script>
+    <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js"
+        integrity="sha384-Q6E9RHvbIyZFJoft+2mJbHaEWldlvI9IOYy5n3zV9zzTtmI3UksdQRVvoxMfooAo" crossorigin="anonymous">
+    </script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/js/bootstrap.min.js"
+        integrity="sha384-wfSDF2E50Y2D1uUdj0O3uMBJnjuUD4Ih7YwaYd1iqfktj0Uod8GCExl3Og8ifwB6" crossorigin="anonymous">
+    </script>
+
+    <!-- Bootstrap CSS -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='bootstrap.min.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='remixicon/remixicon.css') }}">
+    <style>
+        i {
+            float: left;
+            margin-right: 3px;
+        }
+    </style>
+
+    <title>Online Judge</title>
+</head>
+
+<!-- Registration Form -->
+<!-- Need a already signed up button and TOS and captcha -->
+<div class="modal" id="registrationModal" tabindex="-1" role="dialog">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 class="modal-title text-primary">Let's get started!</h2>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+
+            <div class="modal-body">
+                <form action="/register" method="post">
+                    {{ registration_form.hidden_tag() }}
+                    <div class="form-group">
+                        {{ registration_form.username.label }}
+                        {{ registration_form.username(class="form-control") }}
+                    </div>
+
+                    <div class="form-group">
+                        {{ registration_form.email.label }}
+                        {{ registration_form.email(class="form-control", type="email") }}
+                    </div>
+
+                    <div class="form-group">
+                        {{ registration_form.password.label }}
+                        {{ registration_form.password(class="form-control") }}
+                    </div>
+
+                    <div class="form-group">
+                        {{ registration_form.password_confirm.label }}
+                        {{ registration_form.password_confirm(class="form-control") }}
+                    </div>
+
+                    {{ registration_form.submit(class="btn btn-primary btn-block btn-lg") }}
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Login Form -->
+<!-- Need a remember me button and captcha -->
+<div class="modal" id="loginModal" tabindex="-1" role="dialog">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 class="modal-title text-primary">Login</h2>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+
+            <div class="modal-body">
+                <form action="/login" method="post">
+                    {{ login_form.hidden_tag() }}
+                    <div class="form-group">
+                        {{ login_form.username.label }}
+                        {{ login_form.username(class="form-control" )}}
+                    </div>
+
+                    <div class="form-group">
+                        {{ login_form.password.label }}
+                        {{ login_form.password(class="form-control") }}
+                    </div>
+
+                    <div class="form-group form-check">
+                    {{ login_form.remember_me(class="form-check-input") }} {{ login_form.remember_me.label(class="form-check-label") }}
+                    </div>
+                    
+                    {{ login_form.submit(class="btn btn-primary btn-block btn-lg") }}
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<body class="bg-secondary" style="font-size: 115%;">
+    <nav class="navbar navbar-expand-lg navbar-light bg-light">
+        <a class="navbar-brand" href="{{ url_for('index') }}">
+            <h1>Online Judge</h1>
+        </a>
+
+        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+
+        <div class="collapse navbar-collapse" id="navbarSupportedContent">
+            <ul class="navbar-nav mr-auto">
+                <li class="nav-item active">
+                    <a class="nav-link" href="{{ url_for('index') }}"> <i class="ri-home-3-line"></i> Home</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="{{ url_for('problem_list') }}"><i class="ri-braces-line"></i> Problems</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="{{ url_for('contest_list') }}"><i class="ri-trophy-line"></i> Contest</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="#"><i class="ri-bar-chart-box-line"></i> Leaderboard</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="{{ url_for('submission_list') }}"><i class="ri-file-code-line"></i> Submissions</a>
+                </li>
+            </ul>
+
+            <!-- Replaced with user if logged in and a logout button-->
+            <ul class="navbar-nav navbar-right">
+                {% if current_user.is_authenticated %}
+                    <li class="nav-item"><button class="btn btn-lg btn-primary" style="margin: 5px;">{{ current_user.username }}</button></li>
+
+                    <form style="display: inline" action="/logout">
+                        <li class="nav-item"><button class="btn btn-lg btn-danger" style="margin: 5px">Logout</button></li>
+                    </form>
+                {% else %}
+                    <li class="nav-item"><button data-toggle="modal" data-target="#registrationModal" class="btn btn-lg btn-warning" style="margin: 5px;">Register</button></li>
+                    <li class="nav-item"><button data-toggle="modal" data-target="#loginModal" class="btn btn-lg btn-success" style="margin: 5px">Login</button></li>
+                {% endif %}
+            </ul>
+        </div>
+    </nav>
+
+    {% block content %}
+
+    {% endblock %}
+</body>
+</html>

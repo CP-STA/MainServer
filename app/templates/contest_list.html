@@ -1,0 +1,44 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<div class="container">
+    <div class="card">
+        <div class="card-body">
+            <h1 class="card-title text-primary">Problem List</h1>
+            
+            <table class="table table-striped">
+                <thead>
+                    <tr>
+                    <th scope="col">Title</th>
+                    <th scope="col">Start Time</th>
+                    <th scope="col">End Time</th>
+                    <th scope="col">Status</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for contest in contests %}
+                        <tr>
+                            <th scope="row"><a href="{{ url_for("contest", id=contest.id) }}"> {{ contest.title }} </a></th>
+                            <td>{{ contest.start_time }}</td>
+                            <td>{{ contest.end_time }}</td>
+
+                            <td>
+                            {% if current_time <= contest.start_time %}
+                                <span class="badge badge-success">
+                                    Active
+                                </span>
+                            {% else %}
+                                <span class="badge badge-danger">
+                                    Ended
+                                </span>
+                            {% endif %}
+                            </td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}

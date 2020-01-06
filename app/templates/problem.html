@@ -1,0 +1,147 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<style>
+pre {
+    border: 1px solid #ccc; 
+    border-radius: 4px; 
+    padding: 8px; 
+    background-color: #f5f5f5;"
+}
+</style>
+
+<script src={{ url_for('static', filename='codemirror/lib/codemirror.js') }}></script>
+<link rel="stylesheet" href={{ url_for('static', filename='codemirror/lib/codemirror.css') }}>
+<script src={{ url_for('static', filename='codemirror/mode/clike/clike.js') }}></script>
+<script src={{ url_for('static', filename='codemirror/mode/python/python.js') }}></script>
+
+<div class="container">
+    <div class="card">
+        <div class="card-body">
+            <h1 class="card-title text-primary">{{ problem.title }}</h1>
+            <h6 class="card-subtitle mb-2" role="alert">
+                Time Limit: {{ problem.time_limit }} sec | Memory Limit: {{ problem.memory_limit }} mb | Score: {{ problem.points }} points
+            </h6>
+
+            <hr>
+
+            {% if current_user.is_authenticated %}
+                {% if submission %}
+                    <div class="alert alert-info" role="alert" id="{{ submission.id }}_alert">
+                        Currently grading your work! 
+                        <span id="{{ submission.id }}_progress">{{ submission.get_progress() }}</span>
+                    </div>
+                {% endif %}
+            {% endif %}
+
+            <p class="card-text">
+                {{ problem.body|safe }}
+            </p>
+
+            <hr>
+
+            <!-- Loop this part using Jinja -->
+            {% for test in problem.sample_cases %}
+                <p class="card-text">
+                    <h4> {{ test.title }} </h4>
+
+                    <h5> Input </h5>
+                    <pre> {{ test.input_text }} </pre>
+
+                    <h5> Output </h5>
+                    <pre> {{ test.output_text }} </pre>
+                </p>
+                <hr>
+            {% endfor %}
+
+            <form action="" method="POST">
+                {{ form.hidden_tag() }}
+                <div class="form-group row">
+                    {{ form.language.label(class="col-sm-2") }}
+                    {{ form.language(class="custom-select col-sm-3", onchange="changeLanguage.call(this, event)") }}
+                </div>
+
+                <div class="form-group row">
+                    <div class="col-sm-6">
+                        <div class="custom-file">
+                            <input onchange="loadFileAsText()" type="file" class="custom-file-input" id="sourceCode">
+                            <label class="custom-file-label" for="customFile">Upload source code</label>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-group" style="border: #ddd solid 1px; border-radius: 3px;">
+                        {{ form.code(class="form-control", id="source", style="display: none;")}}
+                        <script>
+                            var source = CodeMirror.fromTextArea(document.getElementById('source'), {
+                                mode: "text/x-c++src",
+                                lineNumbers : true,
+                                matchBrackets : true,
+                                tabMode: "indent"
+                            });
+                        </script>
+                </div>
+
+                {{ form.submit(class="btn btn-primary btn-lg", style="float: right;")}}
+            </form>
+        </div>
+    </div>
+</div>
+
+<script>
+function loadFileAsText(){
+  var fileToLoad = document.getElementById("sourceCode").files[0];
+
+  var fileReader = new FileReader();
+  fileReader.onload = function(fileLoadedEvent){
+      var textFromFileLoaded = fileLoadedEvent.target.result;
+      source.setValue(textFromFileLoaded);
+  };
+
+  fileReader.readAsText(fileToLoad, "UTF-8");
+}
+
+function changeLanguage(event) {
+    if (this.selectedIndex == 0 || this.selectedIndex == 1) {
+        source.setOption("mode", "text/x-c++src");
+    } else if (this.selectedIndex == 2) {
+        source.setOption("mode", "text/x-java");
+    } else {
+        source.setOption("mode", "text/x-python");
+    };
+}
+
+function set_progress(submission_id, progress) {
+    $('#' + submission_id + '_progress').text(progress);
+}
+
+function set_status(submission_id, status) {
+    $('#' + submission_id + '_alert').removeClass("alert-info");
+
+    if(status == 0) {
+        $('#' + submission_id + '_alert').addClass("alert-success");
+    } else {
+        $('#' + submission_id + '_alert').addClass("alert-danger");
+    }
+}
+
+{% if current_user.is_authenticated and submission %}
+$(function() {
+    const timer = setInterval(function() {
+        $.ajax('{{ url_for("get_submission", id=submission.id) }}').done(
+            function(data) {
+                set_progress({{ submission.id }}, data.progress);
+                if(data.status != -2) {
+                    clearInterval(timer);
+                    set_status({{ submission.id }}, data.status);
+                }
+            }
+        );
+    }, 1000);
+});
+{% endif %}
+
+</script>
+
+{% endblock %}

@@ -1,0 +1,44 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container">
+    <div class="my-3 p-3 bg-white rounded shadow-sm">
+        <h2 class="pb-2 mb-0"><i class="ri-stack-line"></i> Announcements</h2>
+        <hr>
+        {% with messages = get_flashed_messages() %}
+            {% if messages %}
+                {% for message in messages %}
+                <div class="alert alert-info" role="alert">
+                    {{ message }}
+                    <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+        
+        {% for post in posts %}
+            <div class="card mb-4">
+                <div class="card-header">
+                    <strong class="card-title text-primary" style="font-size: larger;">{{ post["title"] }}</strong>
+                    <span class="text-muted" style="float: right;"> Posted on {{ post["timestamp"] }} </span>
+                </div>
+
+                <div class="card-body">
+                    {{ post["body"]|safe }}
+
+                    </br>
+
+                    {% if post["contest_id"] != -1 %}
+                        <a href="{{ url_for('contest', id=post["contest_id"]) }}" class="btn btn-primary btn-lg">
+                            View Contest
+                        </a>
+                    {% endif %}
+                </div>
+            </div>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}

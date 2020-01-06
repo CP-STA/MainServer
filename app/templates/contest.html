@@ -1,0 +1,75 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<div class="container">
+    <div class="card">
+        <div class="card-body">
+            <h1 class="card-title text-primary">{{ contest.title }}</h1>
+            <h6 class="card-subtitle mb-2" role="alert">
+                Start Time: {{ contest.start_time }} | End Time: {{ contest.end_time }} | Duration: {{ ((contest.end_time - contest.start_time).total_seconds() // 60)|int }} minutes
+            </h6>
+
+            {% if current_time <= contest.start_time %}
+                <form action="" method="POST" style="display: inline;">
+                    {{ form.hidden_tag() }}
+                    {% if registration == None %}
+                        {{ form.register(class="btn btn-success") }}
+                    {% else %}
+                        {{ form.unregister(class="btn btn-danger") }}
+                    {% endif %}
+                </form>
+            {% endif %}
+
+            <!-- Let's use modal to view the leaderboard and reload everytime it is clicked -->
+            <button class="btn btn-primary"> View Leaderboard </button>
+            <!-- Editorial should redirect to PDF -->
+            <button class="btn btn-info"> Editorial </button>
+            <!-- Redirect to submissions page that's filtered? -->
+            <button class="btn btn-secondary"> Submissions </button>
+
+            <hr>
+            {% with messages = get_flashed_messages() %}
+                {% if messages %}
+                    {% for message in messages %}
+                    <div class="alert alert-info" role="alert">
+                        {{ message }}
+                        <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                    {% endfor %}
+                {% endif %}
+            {% endwith %}
+
+            <p class="card-text">
+                <h3> Problems </h3>
+                <table class="table table-striped">
+                    <thead>
+                        <th scope="col">#</th>
+                        <th scope="col">Name</th>
+                        <th scope="col">Points</th>
+                    </thead>
+                    <tbody>
+                    {% for problem in contest.problems|sort(attribute="points") %}
+                        <tr>
+                            <th scope="row"><a href={{ url_for("problem", id=problem.id) }}>{{ "ABCDEFGHIJKLMNOP"[loop.index - 1] }}</a></th>
+                            <td><a href={{ url_for("problem", id=problem.id) }}>{{ problem.title }}</a></td>
+                            <td>{{ problem.points }}</td>
+                        </tr>
+                    {% endfor %}
+                    </tbody>
+                </table>
+            </p>
+
+            <hr>
+
+            <p class="card-text">
+                <h4> Contest Clarifications </h4>
+                <p> No clarifications yet. </p>
+            </p>
+
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,72 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<script src={{ url_for('static', filename='codemirror/lib/codemirror.js') }}></script>
+<link rel="stylesheet" href={{ url_for('static', filename='codemirror/lib/codemirror.css') }}>
+<script src={{ url_for('static', filename='codemirror/mode/clike/clike.js') }}></script>
+<script src={{ url_for('static', filename='codemirror/mode/python/python.js') }}></script>
+
+<div class="container">
+    <div class="card">
+        <div class="card-body">
+            <h1 class="card-title text-primary">Submission #{{ submission.id }}</h1>
+
+            <hr>
+
+            <h3> Source Code </h3>
+            <div class="form-group" style="border: #ddd solid 1px; border-radius: 3px;">
+                <textarea id="source" style="display: none;">{{ submission.code }}</textarea>
+                <script>
+                    var source = CodeMirror.fromTextArea(document.getElementById('source'), {
+                        {% if (submission.language == "c" or submission.language == "c++") %}
+                            mode: "text/x-c++src",
+                        {% elif submission.language == "java" %}
+                            mode: "text/x-java",
+                        {% else %}
+                            mode: "text/x-python",
+                        {% endif %}
+
+                        lineNumbers : true,
+                        readOnly: true
+                    });
+                </script>
+            </div>
+
+            <hr>
+
+            {% if testcases %}
+                <h3> Test Cases </h3>
+                <table class="table table-striped">
+                <thead>
+                    <tr>
+                    <th scope="col">#</th>
+                    <th scope="col">Status</th>
+                    <th scope="col">Runtime</th>
+                    <th scope="col">Memory</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for testcase in testcases["data"] %}
+                        <tr>
+                            <th scope="row">{{ testcase["id"] }}</th>
+                            <td>
+                            {% if testcase["result"] == 0 %}
+                                <span class="badge badge-success"> Accepted </span>
+                            {% else %}
+                                <span class="badge badge-danger"> Wrong Answer </span>
+                            {% endif %}
+                            
+                            </td>
+                            <td>{{ testcase["cpu_time"] }}</td>
+                            <td>{{ testcase["memory"] }}</td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+{% endblock %}
