@@ -48,6 +48,7 @@ def login():
 
     return redirect(url_for("index"))
 
+# TODO: Add ongoing option
 @app.route("/contest/<int:id>", methods = ["GET", "POST"])
 def contest(id):
     c = Contest.query.get(id)
@@ -71,9 +72,13 @@ def contest(id):
 
     return render_template("contest.html", contest=c, form=form, registration=registration, current_time=datetime.utcnow(), **get_kwargs())
 
+
 @app.route('/problem/<int:id>', methods = ["GET", "POST"])
 def problem(id):
     p = Problem.query.get(id)
+
+    if p.contest and p.contest.start_time >= datetime.utcnow():
+        return redirect(url_for("index"))
 
     form = SubmissionForm()
 
@@ -133,8 +138,7 @@ def get_submission(id):
 
         return jsonify({
             "progress": submission.get_progress(),
-            "status": submission.status,
-            "testcases": json.loads(submission.testcases)
+            "status": submission.status
         })
 
 @app.route('/logout')

@@ -7,8 +7,6 @@ import rq
 
 from werkzeug.security import generate_password_hash, check_password_hash
 
-# TODO: Indexing the columns that need it
-
 class Announcement(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     title = db.Column(db.String(64))
@@ -20,12 +18,12 @@ class Announcement(db.Model):
 class User(UserMixin, db.Model):
     id = db.Column(db.Integer, primary_key=True)
     username = db.Column(db.String(64), index=True, unique=True)
-    email = db.Column(db.String(128), unique=True)
+    email = db.Column(db.String(128), index=True, unique=True)
     password_hash = db.Column(db.String(128))
-    is_admin = db.Column(db.Boolean, default = False)
+    is_admin = db.Column(db.Boolean, default=False)
 
     github_link = db.Column(db.String(128))
-    registration_time = db.Column(db.DateTime, index=True, default=datetime.utcnow)
+    registration_time = db.Column(db.DateTime, default=datetime.utcnow)
 
     submissions = db.relationship('Submission', backref='author', lazy='dynamic')
     contests = db.relationship('Registration', backref='contestant', lazy='dynamic')
@@ -47,7 +45,7 @@ class Problem(db.Model):
     title = db.Column(db.String(64))
     body = db.Column(db.Text)
 
-    points = db.Column(db.Integer)
+    points = db.Column(db.Integer, index=True)
     difficulty = db.Column(db.String(16), index=True)
 
     time_limit = db.Column(db.Integer)
@@ -83,13 +81,15 @@ class Registration(db.Model):
     user_id = db.Column(db.Integer, db.ForeignKey("user.id"))
     contest_id = db.Column(db.Integer, db.ForeignKey("contest.id"))
 
-    score = db.Column(db.Integer, default = 0)
-    last_submission = db.Column(db.DateTime)
+    score = db.Column(db.Integer, default=0, index=True)
+    last_submission = db.Column(db.DateTime, index=True)
 
 class Submission(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     user_id = db.Column(db.Integer, db.ForeignKey("user.id"))
     problem_id = db.Column(db.Integer, db.ForeignKey("problem.id"))
+
+    # Not that important
     task_id = db.Column(db.String(64))
 
     timestamp = db.Column(db.DateTime, default=datetime.utcnow)
@@ -103,16 +103,30 @@ class Submission(db.Model):
     progress = db.Column(db.String(16), default = "0/0")
 
     # NOTE: This is to launch the task on the Redis Server
+    
+    # TODO: Also all submissions before that should be rejected
+    # TODO: Question pages cannot be accessed before that time and questions should not appear on the list
+    # TODO: Contest should say ongoing if it has started but hasn't ended
+    # TODO: View leaderboard page for competitions which is similar to ICPC and submissions page which should use filter
+    # TODO: Submissions page should use pagination and show only about 10 at a time
+
+    # TODO: Admin should have restrictions to admin users only
+    # TODO: Rate limiting
+
     def launch_task(self):
         contest = self.problem.contest
+
         registration = Registration.query.filter_by(contest_id = contest.id, user_id = self.user_id).first()
+        first_submission = not Submission.query.filter_by(user_id = self.user_id, problem_id = self.problem_id, status = 0).first()
 
         registration_id = None
-        if registration and self.timestamp <= contest.end_time:
+
+        # Also need to check that the user haven't solved this question before.
+        if registration and self.timestamp <= contest.end_time and first_submission:
             registration_id = registration.id
 
         rq_job = current_app.task_queue.enqueue('server.evaluate_submission', self.id, self.language, self.code,
-        self.problem.memory_limit * 1024 ** 2, self.problem.time_limit * 1000, 
+        self.problem.memory_limit * 1024 ** 2, self.problem.time_limit, 
         self.problem.id, registration_id, self.problem.points)
 
         self.task_id = rq_job.get_id()
@@ -130,4 +144,4 @@ class Submission(db.Model):
     
     def get_progress(self):
         job = self.get_rq_job()
-        return job.meta.get('progress', "0/0") if job else self.progress
+        return job.meta.get("progress", "0/0") if job else self.progress
