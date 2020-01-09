@@ -21,14 +21,18 @@
                 </form>
             {% endif %}
 
-            <!-- Let's use modal to view the leaderboard and reload everytime it is clicked -->
-            <button class="btn btn-primary"> View Leaderboard </button>
+            <form action="{{ url_for("leaderboard", id=contest.id) }}" style="display: inline;">
+                <button class="btn btn-primary"> View Leaderboard </button>
+            </form>
+
             <!-- Editorial should redirect to PDF -->
             <button class="btn btn-info"> Editorial </button>
-            <!-- Redirect to submissions page that's filtered? -->
-            <button class="btn btn-secondary"> Submissions </button>
+
+            <!-- For some reason form redirect doesn't keep parameters in the url -->
+            <button onclick="window.location.href = '{{ url_for("submission_list") }}?contest={{ contest.id }}';" class="btn btn-secondary"> Submissions </button>
 
             <hr>
+            
             {% with messages = get_flashed_messages() %}
                 {% if messages %}
                     {% for message in messages %}

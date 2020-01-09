@@ -28,6 +28,10 @@
                                 <span class="badge badge-success">
                                     Active
                                 </span>
+                            {% elif current_time <= contest.end_time %}
+                                <span class="badge badge-warning">
+                                    Ongoing
+                                </span>
                             {% else %}
                                 <span class="badge badge-danger">
                                     Ended

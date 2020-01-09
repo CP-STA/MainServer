@@ -11,7 +11,7 @@ from redis import Redis
 import json
 
 def get_kwargs():
-    return {"login_form": LoginForm(), "registration_form": RegistrationForm()}
+    return {"login_form": LoginForm(), "registration_form": RegistrationForm(), "current_time": datetime.utcnow()}
 
 @app.route('/')
 @app.route('/index')
@@ -70,14 +70,14 @@ def contest(id):
         
         db.session.commit()
 
-    return render_template("contest.html", contest=c, form=form, registration=registration, current_time=datetime.utcnow(), **get_kwargs())
+    return render_template("contest.html", contest=c, form=form, registration=registration, **get_kwargs())
 
 
 @app.route('/problem/<int:id>', methods = ["GET", "POST"])
 def problem(id):
     p = Problem.query.get(id)
 
-    if p.contest and p.contest.start_time >= datetime.utcnow():
+    if (p.contest and p.contest.start_time >= datetime.utcnow()) or (current_user.is_authenticated and current_user.is_admin):
         return redirect(url_for("index"))
 
     form = SubmissionForm()
@@ -87,7 +87,7 @@ def problem(id):
     if form.validate_on_submit() and current_user.is_authenticated:
         submission = Submission(        
             author = current_user,
-            problem = Problem.query.filter_by(id=id).first(),
+            problem = Problem.query.get(id),
             code = form.code.data,
             language = form.language.data
         )
@@ -113,6 +113,33 @@ def submission(id):
 
     return render_template("submission.html", submission=s, testcases=testcases, **get_kwargs())
 
+@app.route("/contest/<int:id>/leaderboard")
+def leaderboard(id):
+    registrations = Registration.query.filter_by(contest_id=id).order_by(Registration.score.desc(), Registration.last_submission)
+    contest = Contest.query.get(id)
+
+    problems = []
+
+    for problem in contest.problems:
+        data = {
+            "id": problem.id,
+            "score": problem.points,
+            "users": {}
+        }
+
+        for registration in registrations:
+            submission = Submission.query.filter_by(status=0, author=registration.contestant).order_by(Submission.timestamp).first()
+
+            if submission and submission.timestamp <= contest.end_time:
+                data["users"][registration.user_id] = submission
+
+        problems.append(data)
+
+    problems.sort(key=lambda x: x["score"])
+
+    return render_template("leaderboard.html", problems=problems, registrations=registrations, **get_kwargs())
+
+
 @app.route("/problems", methods = ["GET"])
 def problem_list():
     problems = Problem.query.all()
@@ -123,11 +150,17 @@ def problem_list():
 def contest_list():
     contests = Contest.query.all()
 
-    return render_template("contest_list.html", current_time=datetime.utcnow(), contests=contests, **get_kwargs())
+    return render_template("contest_list.html", contests=contests, **get_kwargs())
 
 @app.route("/submissions", methods = ["GET"])
 def submission_list():
-    submissions = Submission.query.order_by(Submission.timestamp.desc()).all()
+    contest_id = request.args.get("contest")
+
+    if contest_id:
+        contest = Contest.query.get(contest_id)
+        submissions = Submission.query.filter(Submission.problem.has(contest=contest)).order_by(Submission.timestamp.desc()).all()
+    else:
+        submissions = Submission.query.order_by(Submission.timestamp.desc()).all()
 
     return render_template("submission_list.html", submissions=submissions, **get_kwargs())
 

@@ -104,13 +104,16 @@ class Submission(db.Model):
 
     # NOTE: This is to launch the task on the Redis Server
     
+    # TODO: Questions and Contest questions cannot be accessed until the contest starts
     # TODO: Also all submissions before that should be rejected
     # TODO: Question pages cannot be accessed before that time and questions should not appear on the list
     # TODO: Contest should say ongoing if it has started but hasn't ended
     # TODO: View leaderboard page for competitions which is similar to ICPC and submissions page which should use filter
+
+    
     # TODO: Submissions page should use pagination and show only about 10 at a time
 
-    # TODO: Admin should have restrictions to admin users only
+    # TODO: Admin page should have restrictions to admin users only
     # TODO: Rate limiting
 
     def launch_task(self):
