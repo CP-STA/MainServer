@@ -9,6 +9,7 @@ from datetime import datetime
 
 from redis import Redis
 import json
+import sys
 
 def get_kwargs():
     return {"login_form": LoginForm(), "registration_form": RegistrationForm(), "current_time": datetime.utcnow()}
@@ -82,23 +83,26 @@ def problem(id):
 
     form = SubmissionForm()
 
-    # TODO: Error handling when the user is not authenticated
     submission = None
     if form.validate_on_submit() and current_user.is_authenticated:
-        submission = Submission(        
-            author = current_user,
-            problem = Problem.query.get(id),
-            code = form.code.data,
-            language = form.language.data
-        )
+        if form.code.data == "":
+            flash("The source code must not be empty.")
+        elif sys.getsizeof(form.code.data) > 512000:
+            flash("File size limit exceeded. The source code must be at most 512 kb.")
+        else:
+            submission = Submission(        
+                author = current_user,
+                problem = Problem.query.get(id),
+                code = form.code.data,
+                language = form.language.data
+            )
 
-        # TODO: Check that code isn't too big
+            db.session.add(submission)
+            db.session.commit()
 
-        db.session.add(submission)
-        db.session.commit()
-
-        submission.launch_task()
-        # TODO: Prompt user with notification showing the status of the task
+            submission.launch_task()
+    else:
+        flash("You need to be logged in to perform this action.")
 
     return render_template("problem.html", problem=p, form=form, submission=submission, **get_kwargs())
 
