@@ -53,6 +53,8 @@ pre {
 
                         <strong> Progress: <span id="{{ submission.id }}_progress">({{ submission.get_progress() }})</span> </strong>
                         
+                        <a style="float: right;" class="badge badge-secondary" href="{{ url_for("submission", id=submission.id) }}"> More details... </a>
+
                         <div class="progress" id="progress_bar">
                             <div id="{{ submission.id }}_progress_bar" class="progress-bar progress-bar-animated progress-bar-striped bg-success" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100"></div>
                         </div>
