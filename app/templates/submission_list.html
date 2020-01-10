@@ -29,13 +29,25 @@
 
                             
                             <td>
+
                             {% if submission.status == -2 %}
                                 <span class="badge badge-warning"> Pending </span>
                             {% elif submission.status == 0 %}
                                 <span class="badge badge-success"> Accepted </span>
+                            {% elif submission.status == -3 %}
+                                <span class="badge badge-warning"> Compilation Error </span>
+                            {% elif (submission.status == 1 or submission.status == 2) %}
+                                <span class="badge badge-warning"> Time Limit Exceeded </span>
+                            {% elif submission.status == 3 %}
+                                <span class="badge badge-warning"> Memory Limit Exceeded </span>
+                            {% elif submission.status == 4 %}
+                                <span class="badge badge-warning"> Runtime Error </span>
+                            {% elif submission.status == 5 %}
+                                <span class="badge badge-secondary"> Something went wrong... </span>
                             {% else %}
                                 <span class="badge badge-danger"> Wrong Answer </span>
                             {% endif %}
+                            
                             </td>
                         </tr>
                     {% endfor %}

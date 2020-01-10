@@ -21,16 +21,41 @@ pre {
         <div class="card-body">
             <h1 class="card-title text-primary">{{ problem.title }}</h1>
             <h6 class="card-subtitle mb-2" role="alert">
-                Time Limit: {{ problem.time_limit }} sec | Memory Limit: {{ problem.memory_limit }} mb | Score: {{ problem.points }} points
+                Time Limit: {{ problem.time_limit / 1000 }} sec | Memory Limit: {{ problem.memory_limit }} mb | Score: {{ problem.points }} points
             </h6>
 
             <hr>
+            {% with messages = get_flashed_messages() %}
+                {% if messages %}
+                    {% for message in messages %}
+                    <div class="alert alert-danger" role="alert">
+                        {{ message }}
+                        <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                    {% endfor %}
+                {% endif %}
+            {% endwith %}
 
             {% if current_user.is_authenticated %}
                 {% if submission %}
-                    <div class="alert alert-info" role="alert" id="{{ submission.id }}_alert">
-                        Currently grading your work! 
-                        <span id="{{ submission.id }}_progress">{{ submission.get_progress() }}</span>
+                    <div class="alert alert-primary" role="alert" id="{{ submission.id }}_alert">
+                        <h4>
+                            <strong> <i id="{{ submission.id }}_icon" class="ri-checkbox-blank-circle-line"></i> 
+                                <span id="{{ submission.id }}_title"> Pending </span>
+                            </strong>
+                        </h4>
+
+                        <span id="{{ submission.id }}_body">Congrats on your submission! Currently grading your work...</span>
+                        
+                        <br>
+
+                        <strong> Progress: <span id="{{ submission.id }}_progress">({{ submission.get_progress() }})</span> </strong>
+                        
+                        <div class="progress" id="progress_bar">
+                            <div id="{{ submission.id }}_progress_bar" class="progress-bar progress-bar-animated progress-bar-striped bg-dark" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100"></div>
+                        </div>
                     </div>
                 {% endif %}
             {% endif %}
@@ -112,36 +137,80 @@ function changeLanguage(event) {
     };
 }
 
+function set_icon(submission_id, icon) {
+    $('#' + submission_id + '_icon').removeClass("ri-checkbox-blank-circle-line");
+    $('#' + submission_id + '_icon').addClass(icon);
+}
+
 function set_progress(submission_id, progress) {
     $('#' + submission_id + '_progress').text(progress);
+    
+    var tmp = progress.split("/");
+    var percentage = Number(tmp[0]) / Number(tmp[1]) * 100;
+
+    $('#' + submission_id + '_progress_bar').css('width', percentage + '%');
+}
+
+function set_body(submission_id, body) {
+    $('#' + submission_id + '_body').text(body);
+}
+
+function set_title(submission_id, title) {
+    $('#' + submission_id + '_title').text(title);
 }
 
 function set_status(submission_id, status) {
-    $('#' + submission_id + '_alert').removeClass("alert-info");
+    $('#' + submission_id + '_alert').removeClass("alert-dark");
 
     if(status == 0) {
         $('#' + submission_id + '_alert').addClass("alert-success");
-    } else {
+        set_title(submission_id, "Success!");
+        set_body(submission_id, "Congratulations! Your solution was accepted.");
+        set_icon(submission_id, "ri-checkbox-circle-line");
+    } else if(status == -1) {
         $('#' + submission_id + '_alert').addClass("alert-danger");
+        set_title(submission_id, "Wrong Answer!");
+        set_body(submission_id, "Your solution was incorrect! Please try again.");
+        set_icon(submission_id, "ri-close-circle-line");
+    } else {
+        $('#' + submission_id + '_alert').addClass("alert-warning");
+        set_body(submission_id, "There was a problem with your solution. Please try again.");
+        set_icon(submission_id, "ri-close-circle-line");
+        if (status == -3) {
+            set_title(submission_id, "Compilation Error");
+        } else if(status == 1 || status == 2) {
+            set_title(submission_id, "Time Limit Exceeded");
+        } else if(status == 3) {
+            set_title(submission_id, "Memory Limit Exceeded");
+        } else if(status == 4) {
+            set_title(submission_id, "Runtime Error");
+        } else {
+            set_title(submission_id, "Something went horribly wrong...");
+        }
     }
+}
+
+function sleep(ms) {
+  return new Promise(resolve => setTimeout(resolve, ms));
 }
 
 {% if current_user.is_authenticated and submission %}
 $(function() {
     const timer = setInterval(function() {
         $.ajax('{{ url_for("get_submission", id=submission.id) }}').done(
-            function(data) {
+            async function(data) {
                 set_progress({{ submission.id }}, data.progress);
                 if(data.status != -2) {
                     clearInterval(timer);
                     set_status({{ submission.id }}, data.status);
+                    await sleep(500);
+                    $('#' + 'progress_bar').remove();
                 }
             }
         );
     }, 1000);
 });
 {% endif %}
-
 </script>
 
 {% endblock %}

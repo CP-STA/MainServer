@@ -51,8 +51,21 @@
                         <tr>
                             <th scope="row">{{ testcase["id"] }}</th>
                             <td>
-                            {% if testcase["result"] == 0 %}
+
+                            {% if testcase["result"] == -2 %}
+                                <span class="badge badge-warning"> Pending </span>
+                            {% elif testcase["result"] == 0 %}
                                 <span class="badge badge-success"> Accepted </span>
+                            {% elif testcase["result"] == -3 %}
+                                <span class="badge badge-warning"> Compilation Error </span>
+                            {% elif (testcase["result"] == 1 or testcase["result"] == 2) %}
+                                <span class="badge badge-warning"> Time Limit Exceeded </span>
+                            {% elif testcase["result"] == 3 %}
+                                <span class="badge badge-warning"> Memory Limit Exceeded </span>
+                            {% elif testcase["result"] == 4 %}
+                                <span class="badge badge-warning"> Runtime Error </span>
+                            {% elif testcase["result"] == 5 %}
+                                <span class="badge badge-secondary"> Something went wrong... </span>
                             {% else %}
                                 <span class="badge badge-danger"> Wrong Answer </span>
                             {% endif %}

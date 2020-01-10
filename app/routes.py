@@ -84,7 +84,9 @@ def problem(id):
     form = SubmissionForm()
 
     submission = None
-    if form.validate_on_submit() and current_user.is_authenticated:
+    if form.validate_on_submit():
+        if not current_user.is_authenticated:
+            flash("You need to be logged in to perform this action.")
         if form.code.data == "":
             flash("The source code must not be empty.")
         elif sys.getsizeof(form.code.data) > 512000:
@@ -100,9 +102,7 @@ def problem(id):
             db.session.add(submission)
             db.session.commit()
 
-            submission.launch_task()
-    else:
-        flash("You need to be logged in to perform this action.")
+            submission.launch_task()        
 
     return render_template("problem.html", problem=p, form=form, submission=submission, **get_kwargs())
 
