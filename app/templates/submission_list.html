@@ -59,6 +59,7 @@
                     <li class="page-item {% if request.args.get("page") == "1" %} disabled {% endif %}">
                         <a class="page-link" href="{{ url_for("submission_list") }}?page={{ (request.args.get("page", 1))|int - 1 }}">Previous</a>
                     </li>
+                    
                     <li class="page-item active">
                         <a class="page-link" href="{{ url_for("submission_list") }}?page={{ (request.args.get("page", 1))|int }}">
                         {{ (request.args.get("page", 1))|int}}

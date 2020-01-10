@@ -1,6 +1,6 @@
 from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
-from flask_login import LoginManager
+from flask_login import LoginManager, current_user
 from flask_migrate import Migrate
 
 import rq
@@ -34,18 +34,21 @@ from app.models import User, Problem, Contest, Registration, Submission, Announc
 ckeditor = CKEditor(app)
 admin = Admin(app, template_mode='bootstrap3')
 
-class RichView(ModelView):
+class BetterView(ModelView):
+    def is_accessible(self):
+        return current_user.is_authenticated and current_user.is_admin
+
     form_overrides = dict(body=CKEditorField)
     create_template = 'edit.html'
     edit_template = 'edit.html'
 
 # Setting up the administrators page
-admin.add_view(RichView(Announcement, db.session))
-admin.add_view(ModelView(User, db.session))
-admin.add_view(RichView(Problem, db.session))
-admin.add_view(ModelView(Contest, db.session))
-admin.add_view(ModelView(Registration, db.session))
-admin.add_view(ModelView(Submission, db.session))
-admin.add_view(RichView(SampleCase, db.session))
+admin.add_view(BetterView(Announcement, db.session))
+admin.add_view(BetterView(User, db.session))
+admin.add_view(BetterView(Problem, db.session))
+admin.add_view(BetterView(Contest, db.session))
+admin.add_view(BetterView(Registration, db.session))
+admin.add_view(BetterView(Submission, db.session))
+admin.add_view(BetterView(SampleCase, db.session))
 
 from app import routes, models
