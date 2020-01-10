@@ -168,6 +168,8 @@ function sleep(ms) {
 }
 
 $(function() {
+    var first_run = true;
+
     const timer = setInterval(function() {
         $.ajax('{{ url_for("get_submission", id=submission.id) }}').done(
             async function(data) {
@@ -177,7 +179,14 @@ $(function() {
                     set_status({{ submission.id }}, data.status);
                     await sleep(500);
                     $('#' + 'progress_bar').remove();
+
+                    // Reload to show testcase details
+                    if(!first_run) {
+                        location.reload();
+                    }
                 }
+
+                first_run = false;
             }
         );
     }, 1000);

@@ -110,6 +110,10 @@ def problem(id):
 def submission(id):
     s = Submission.query.get(id)
 
+    if datetime.utcnow() <= s.problem.contest.end_time and current_user != s.author:
+        flash("You can only view this submission when the contest ends!")
+        return redirect(url_for("index"))
+
     try:
         testcases = json.loads(s.testcases)
     except:
@@ -132,16 +136,16 @@ def leaderboard(id):
         }
 
         for registration in registrations:
-            submission = Submission.query.filter_by(status=0, author=registration.contestant).order_by(Submission.timestamp).first()
+            submission = Submission.query.filter_by(status=0, author=registration.contestant, problem_id=problem.id).order_by(Submission.timestamp).first()
 
-            if submission and submission.timestamp <= contest.end_time:
+            if submission and contest.start_time <= submission.timestamp <= contest.end_time:
                 data["users"][registration.user_id] = submission
 
         problems.append(data)
 
     problems.sort(key=lambda x: x["score"])
 
-    return render_template("leaderboard.html", problems=problems, registrations=registrations, **get_kwargs())
+    return render_template("leaderboard.html", problems=problems, registrations=registrations, contest=contest, **get_kwargs())
 
 
 @app.route("/problems", methods = ["GET"])

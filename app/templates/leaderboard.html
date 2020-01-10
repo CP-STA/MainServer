@@ -14,7 +14,7 @@
                     <th scope="col">Name</th>
                     <th scope="col">Score</th>
                     {% for problem in problems %}
-                        <th scope="col"><a href="#"> Q{{ loop.index }} ({{ problem.score }}) </a></th>
+                        <th scope="col"><a href="{{ url_for("problem", id=problem.id) }}"> Q{{ loop.index }} ({{ problem.score }}) </a></th>
                     {% endfor %}
                     </tr>
                 </thead>
@@ -28,7 +28,7 @@
                                 <td>
                                     {% if problem.users.get(registration.user_id) %}
                                     <a href="{{ url_for("submission", id=problem.users[registration.user_id].id) }}">
-                                        {{ problem.users[registration.user_id].timestamp }} 
+                                        {{ problem.users[registration.user_id].timestamp.replace(microsecond=0) - contest.start_time.replace(microsecond=0) }} 
                                     </a>
                                     {% endif %}
                                 </td>
