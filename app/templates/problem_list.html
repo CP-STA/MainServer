@@ -17,7 +17,7 @@
                 </thead>
                 <tbody>
                     {% for problem in problems %}
-                        {% if (problem.contest == None or problem.contest.end_time <= current_time) %}
+                        {% if (problem.contest == None or problem.contest.start_time <= current_time) %}
                         <tr>
                             <th scope="row"><a href="{{ url_for("problem", id=problem.id) }}"> {{ problem.id }} </a></th>
                             <td><a href="{{ url_for("problem", id=problem.id) }}"> {{ problem.title }} </a></td>

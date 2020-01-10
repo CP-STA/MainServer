@@ -12,7 +12,10 @@
         <div class="card-body">
             <h1 class="card-title text-primary">Submission #{{ submission.id }}</h1>
 
-            <h5> <a href="#"> Author </a> | <a href="{{ url_for("problem", id=submission.problem.id) }}"> Problem </a> </h5>
+            <h5> 
+            <a href="#"> Author </a> | <a href="{{ url_for("problem", id=submission.problem.id) }}"> Problem </a>
+            <span style="float: right;"> Submitted on {{ submission.timestamp.replace(microsecond=0) }} </span>
+            </h5>
             <hr>
 
             <div class="alert alert-dark" role="alert" id="{{ submission.id }}_alert">

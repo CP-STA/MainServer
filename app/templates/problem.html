@@ -20,9 +20,10 @@ pre {
     <div class="card">
         <div class="card-body">
             <h1 class="card-title text-primary">{{ problem.title }}</h1>
-            <h6 class="card-subtitle mb-2" role="alert">
+            <h5 class="card-subtitle mb-2" role="alert">
                 Time Limit: {{ problem.time_limit / 1000 }} seconds | Memory Limit: {{ problem.memory_limit }} MB | Score: {{ problem.points }} points
-            </h6>
+                <span style="float: right;"><a href="{{ url_for("contest", id=problem.contest.id) }}"> Back to Contest </a></span>
+            </h5>
 
             <hr>
             {% with messages = get_flashed_messages() %}

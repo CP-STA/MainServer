@@ -49,7 +49,6 @@ def login():
 
     return redirect(url_for("index"))
 
-# TODO: Add ongoing option
 @app.route("/contest/<int:id>", methods = ["GET", "POST"])
 def contest(id):
     c = Contest.query.get(id)
@@ -163,18 +162,19 @@ def contest_list():
 @app.route("/submissions", methods = ["GET"])
 def submission_list():
     contest_id = request.args.get("contest")
+    page = request.args.get("page", 1, type=int)
+
 
     if contest_id:
         contest = Contest.query.get(contest_id)
-        submissions = Submission.query.filter(Submission.problem.has(contest=contest)).order_by(Submission.timestamp.desc()).all()
+        submissions = Submission.query.filter(Submission.problem.has(contest=contest)).order_by(Submission.timestamp.desc())
     else:
-        submissions = Submission.query.order_by(Submission.timestamp.desc()).all()
+        submissions = Submission.query.order_by(Submission.timestamp.desc())
 
-    return render_template("submission_list.html", submissions=submissions, **get_kwargs())
+    return render_template("submission_list.html", submissions=submissions.paginate(page, 10, False).items, **get_kwargs())
 
 @app.route('/api/submission/<int:id>')
 def get_submission(id):
-    # if current_user.is_authenticated:
     submission = current_user.submissions.filter_by(id=id).first()
 
     return jsonify({
