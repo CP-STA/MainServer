@@ -40,7 +40,7 @@ pre {
 
             {% if current_user.is_authenticated %}
                 {% if submission %}
-                    <div class="alert alert-primary" role="alert" id="{{ submission.id }}_alert">
+                    <div class="alert alert-dark" role="alert" id="{{ submission.id }}_alert">
                         <h4>
                             <strong> <i id="{{ submission.id }}_icon" class="ri-checkbox-blank-circle-line"></i> 
                                 <span id="{{ submission.id }}_title"> Pending </span>
@@ -54,7 +54,7 @@ pre {
                         <strong> Progress: <span id="{{ submission.id }}_progress">({{ submission.get_progress() }})</span> </strong>
                         
                         <div class="progress" id="progress_bar">
-                            <div id="{{ submission.id }}_progress_bar" class="progress-bar progress-bar-animated progress-bar-striped bg-dark" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100"></div>
+                            <div id="{{ submission.id }}_progress_bar" class="progress-bar progress-bar-animated progress-bar-striped bg-success" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100"></div>
                         </div>
                     </div>
                 {% endif %}
@@ -168,11 +168,19 @@ function set_status(submission_id, status) {
         set_body(submission_id, "Congratulations! Your solution was accepted.");
         set_icon(submission_id, "ri-checkbox-circle-line");
     } else if(status == -1) {
+        // Smooth Transitioning
+        $('#' + submission_id + '_progress_bar').removeClass("bg-success")
+        $('#' + submission_id + '_progress_bar').addClass("bg-danger")
+
         $('#' + submission_id + '_alert').addClass("alert-danger");
         set_title(submission_id, "Wrong Answer!");
         set_body(submission_id, "Your solution was incorrect! Please try again.");
         set_icon(submission_id, "ri-close-circle-line");
     } else {
+        // Smooth Transitioning
+        $('#' + submission_id + '_progress_bar').removeClass("bg-success")
+        $('#' + submission_id + '_progress_bar').addClass("bg-warning")
+
         $('#' + submission_id + '_alert').addClass("alert-warning");
         set_body(submission_id, "There was a problem with your solution. Please try again.");
         set_icon(submission_id, "ri-close-circle-line");

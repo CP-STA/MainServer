@@ -90,8 +90,8 @@
                             {% endif %}
                             
                             </td>
-                            <td>{{ testcase["real_time"] }} ms</td>
-                            <td>{{ (testcase["memory"] / 1000)|int }} KB</td>
+                            <td>{{ testcase.get("real_time", 0) }} ms</td>
+                            <td>{{ (testcase.get("memory", 0) / 1000)|int }} KB</td>
                         </tr>
                     {% endfor %}
                 </tbody>
@@ -133,11 +133,19 @@ function set_status(submission_id, status) {
         set_body(submission_id, "Congratulations! Your solution was accepted.");
         set_icon(submission_id, "ri-checkbox-circle-line");
     } else if(status == -1) {
+        // Smooth Transitioning
+        $('#' + submission_id + '_progress_bar').removeClass("bg-success")
+        $('#' + submission_id + '_progress_bar').addClass("bg-danger")
+
         $('#' + submission_id + '_alert').addClass("alert-danger");
         set_title(submission_id, "Wrong Answer!");
         set_body(submission_id, "Your solution was incorrect! Please try again.");
         set_icon(submission_id, "ri-close-circle-line");
     } else {
+        // Smooth Transitioning
+        $('#' + submission_id + '_progress_bar').removeClass("bg-success")
+        $('#' + submission_id + '_progress_bar').addClass("bg-warning")
+
         $('#' + submission_id + '_alert').addClass("alert-warning");
         set_body(submission_id, "There was a problem with your solution. Please try again.");
         set_icon(submission_id, "ri-close-circle-line");
