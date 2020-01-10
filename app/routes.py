@@ -171,7 +171,7 @@ def submission_list():
     else:
         submissions = Submission.query.order_by(Submission.timestamp.desc())
 
-    return render_template("submission_list.html", submissions=submissions.paginate(page, 10, False).items, **get_kwargs())
+    return render_template("submission_list.html", submissions=submissions.paginate(page, 20, False).items, **get_kwargs())
 
 @app.route('/api/submission/<int:id>')
 def get_submission(id):
