@@ -104,8 +104,6 @@ class Submission(db.Model):
 
     # NOTE: This is to launch the task on the Redis Server
     
-    # TODO: Submissions page should use pagination and show only about 10 at a time
-    # TODO: Admin page should have restrictions to admin users only
     # TODO: Rate limiting
 
     def launch_task(self):

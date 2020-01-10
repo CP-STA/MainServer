@@ -77,7 +77,8 @@ def contest(id):
 def problem(id):
     p = Problem.query.get(id)
 
-    if (p.contest and p.contest.start_time >= datetime.utcnow()) or (current_user.is_authenticated and current_user.is_admin):
+    if (p.contest and p.contest.start_time >= datetime.utcnow()) and (not current_user.is_authenticated or current_user.is_admin):
+        flash("This question cannot be accessed before the contest starts!")
         return redirect(url_for("index"))
 
     form = SubmissionForm()
@@ -171,7 +172,7 @@ def submission_list():
     else:
         submissions = Submission.query.order_by(Submission.timestamp.desc())
 
-    return render_template("submission_list.html", submissions=submissions.paginate(page, 20, False).items, **get_kwargs())
+    return render_template("submission_list.html", submissions=submissions.paginate(page, 20).items, **get_kwargs())
 
 @app.route('/api/submission/<int:id>')
 def get_submission(id):
