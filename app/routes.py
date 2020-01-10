@@ -170,13 +170,13 @@ def submission_list():
 
 @app.route('/api/submission/<int:id>')
 def get_submission(id):
-    if current_user.is_authenticated:
-        submission = current_user.submissions.filter_by(id=id).first()
+    # if current_user.is_authenticated:
+    submission = current_user.submissions.filter_by(id=id).first()
 
-        return jsonify({
-            "progress": submission.get_progress(),
-            "status": submission.status
-        })
+    return jsonify({
+        "progress": submission.get_progress(),
+        "status": submission.status
+    })
 
 @app.route('/logout')
 def logout():

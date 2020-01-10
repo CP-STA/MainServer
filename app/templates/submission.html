@@ -12,9 +12,28 @@
         <div class="card-body">
             <h1 class="card-title text-primary">Submission #{{ submission.id }}</h1>
 
+            <h5> <a href="#"> Author </a> | <a href="{{ url_for("problem", id=submission.problem.id) }}"> Problem </a> </h5>
             <hr>
 
-            <h3> Source Code </h3>
+            <div class="alert alert-dark" role="alert" id="{{ submission.id }}_alert">
+                <h4>
+                    <strong> <i id="{{ submission.id }}_icon" class="ri-checkbox-blank-circle-line"></i> 
+                        <span id="{{ submission.id }}_title"> Pending </span>
+                    </strong>
+                </h4>
+
+                <span id="{{ submission.id }}_body">Congrats on your submission! Currently grading your work...</span>
+                
+                <br>
+
+                <strong> Progress: <span id="{{ submission.id }}_progress">({{ submission.get_progress() }})</span> </strong>
+                
+                <div class="progress" id="progress_bar">
+                    <div id="{{ submission.id }}_progress_bar" class="progress-bar progress-bar-animated progress-bar-striped bg-success" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100"></div>
+                </div>
+            </div>
+
+            <h3> Source Code ({{ submission.language }})</h3>
             <div class="form-group" style="border: #ddd solid 1px; border-radius: 3px;">
                 <textarea id="source" style="display: none;">{{ submission.code }}</textarea>
                 <script>
@@ -71,8 +90,8 @@
                             {% endif %}
                             
                             </td>
-                            <td>{{ testcase["cpu_time"] }}</td>
-                            <td>{{ testcase["memory"] }}</td>
+                            <td>{{ testcase["real_time"] }} ms</td>
+                            <td>{{ (testcase["memory"] / 1000)|int }} KB</td>
                         </tr>
                     {% endfor %}
                 </tbody>
@@ -81,5 +100,80 @@
         </div>
     </div>
 </div>
+
+<script>
+function set_icon(submission_id, icon) {
+    $('#' + submission_id + '_icon').removeClass("ri-checkbox-blank-circle-line");
+    $('#' + submission_id + '_icon').addClass(icon);
+}
+
+function set_progress(submission_id, progress) {
+    $('#' + submission_id + '_progress').text(progress);
+    
+    var tmp = progress.split("/");
+    var percentage = Number(tmp[0]) / Number(tmp[1]) * 100;
+
+    $('#' + submission_id + '_progress_bar').css('width', percentage + '%');
+}
+
+function set_body(submission_id, body) {
+    $('#' + submission_id + '_body').text(body);
+}
+
+function set_title(submission_id, title) {
+    $('#' + submission_id + '_title').text(title);
+}
+
+function set_status(submission_id, status) {
+    $('#' + submission_id + '_alert').removeClass("alert-dark");
+
+    if(status == 0) {
+        $('#' + submission_id + '_alert').addClass("alert-success");
+        set_title(submission_id, "Success!");
+        set_body(submission_id, "Congratulations! Your solution was accepted.");
+        set_icon(submission_id, "ri-checkbox-circle-line");
+    } else if(status == -1) {
+        $('#' + submission_id + '_alert').addClass("alert-danger");
+        set_title(submission_id, "Wrong Answer!");
+        set_body(submission_id, "Your solution was incorrect! Please try again.");
+        set_icon(submission_id, "ri-close-circle-line");
+    } else {
+        $('#' + submission_id + '_alert').addClass("alert-warning");
+        set_body(submission_id, "There was a problem with your solution. Please try again.");
+        set_icon(submission_id, "ri-close-circle-line");
+        if (status == -3) {
+            set_title(submission_id, "Compilation Error");
+        } else if(status == 1 || status == 2) {
+            set_title(submission_id, "Time Limit Exceeded");
+        } else if(status == 3) {
+            set_title(submission_id, "Memory Limit Exceeded");
+        } else if(status == 4) {
+            set_title(submission_id, "Runtime Error");
+        } else {
+            set_title(submission_id, "Something went horribly wrong...");
+        }
+    }
+}
+
+function sleep(ms) {
+  return new Promise(resolve => setTimeout(resolve, ms));
+}
+
+$(function() {
+    const timer = setInterval(function() {
+        $.ajax('{{ url_for("get_submission", id=submission.id) }}').done(
+            async function(data) {
+                set_progress({{ submission.id }}, data.progress);
+                if(data.status != -2) {
+                    clearInterval(timer);
+                    set_status({{ submission.id }}, data.status);
+                    await sleep(500);
+                    $('#' + 'progress_bar').remove();
+                }
+            }
+        );
+    }, 1000);
+});
+</script>
 
 {% endblock %}
