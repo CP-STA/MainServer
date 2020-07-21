@@ -69,6 +69,8 @@ def contest(id):
                 flash("You are now registered for this contest.")
         
         db.session.commit()
+    else:
+        flash("You must be logged in to register for this contest.")
 
     return render_template("contest.html", contest=c, form=form, registration=registration, **get_kwargs())
 
