@@ -34,6 +34,7 @@ from app.models import User, Problem, Contest, Registration, Submission, Announc
 ckeditor = CKEditor(app)
 admin = Admin(app, template_mode='bootstrap3')
 
+# BetterView allows us to use a more advanced text editor
 class BetterView(ModelView):
     def is_accessible(self):
         return current_user.is_authenticated and current_user.is_admin
