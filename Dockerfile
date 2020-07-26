@@ -11,9 +11,9 @@ COPY requirements.txt requirements.txt
 RUN python -m venv venv
 RUN venv/bin/pip install -r requirements.txt
 
-copy app app
-copy migrations migrations
-copy onlinejudge.py config.py boot.sh ./
+COPY app app
+COPY migrations migrations
+COPY onlinejudge.py config.py boot.sh ./
 RUN chmod +x boot.sh
 
 ENV FLASK_APP onlinejudge.py
