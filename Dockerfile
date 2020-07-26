@@ -4,10 +4,12 @@ RUN adduser -D onlinejudge
 
 WORKDIR /home/mainserver
 
+RUN apk add postgresql-dev gcc python3-dev musl-dev
+
 COPY requirements.txt requirements.txt
+
 RUN python -m venv venv
 RUN venv/bin/pip install -r requirements.txt
-RUN venv/bin/pip install gunicorn
 
 copy app app
 copy migrations migrations
