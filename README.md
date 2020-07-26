@@ -1,10 +1,5 @@
 # Running on your local machine
 ```
-pip install virtualenv
-virtualenv venv
-source venv/bin/activate
-pip install -r requirements.txt
-
-flask db init
-flask run
+sudo pip install docker-compose
+sudo docker-compose up
 ```
