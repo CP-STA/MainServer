@@ -37,7 +37,7 @@ admin = Admin(app, template_mode='bootstrap3')
 # BetterView allows us to use a more advanced text editor
 class BetterView(ModelView):
     def is_accessible(self):
-        return current_user.is_authenticated and current_user.is_admin
+        return current_user.is_authenticated # and current_user.is_admin
 
     form_overrides = dict(body=CKEditorField)
     create_template = 'edit.html'
