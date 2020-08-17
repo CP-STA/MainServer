@@ -29,11 +29,11 @@ services:
     
     nginx:
         image: nginx:alpine
-        container_name: webserver
+        container_name: nginx
         restart: unless-stopped
         tty: true
         volumes:
-            - /etc/nginx/sites-enabled/onlinejudge:/etc/nginx/sites-enabled/onlinejudge
+            - /etc/nginx/sites-enabled:/etc/nginx/sites-enabled
             - /etc/letsencrypt/live/staoj.com:/etc/letsencrypt/live/staoj.com
         ports:
             - "80:80"
