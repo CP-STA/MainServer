@@ -27,11 +27,13 @@ services:
         networks:
             - staoj
     
-    webserver:
+    nginx:
         image: nginx:alpine
         container_name: webserver
         restart: unless-stopped
         tty: true
+        volumes:
+            - /etc/nginx/sites-enabled/onlinejudge:/etc/nginx/sites-enabled/onlinejudge
         ports:
             - "80:80"
             - "443:443"
