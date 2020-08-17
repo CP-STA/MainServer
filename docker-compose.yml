@@ -9,6 +9,8 @@ services:
         environment: 
             - POSTGRES_DB=onlinejudge
             - POSTGRES_PASSWORD=password
+        networks:
+            - staoj
     
     backend:
         build: .
@@ -22,3 +24,20 @@ services:
             - DATABASE_URL=postgresql://postgres:password@postgres/postgres
         ports:
             - 5000:5000
+        networks:
+            - staoj
+    
+    webserver:
+        image: nginx:alpine
+        container_name: webserver
+        restart: unless-stopped
+        tty: true
+        ports:
+            - "80:80"
+            - "443:443"
+        networks:
+            - staoj
+
+networks:
+    staoj:
+        driver: bridge
