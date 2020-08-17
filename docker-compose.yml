@@ -36,6 +36,7 @@ services:
             - ./deployment/nginx.conf:/etc/nginx/conf.d/default.conf
             - /etc/letsencrypt/live/staoj.com/fullchain.pem:/etc/letsencrypt/live/staoj.com/fullchain.pem
             - /etc/letsencrypt/live/staoj.com/privkey.pem:/etc/letsencrypt/live/staoj.com/privkey.pem
+            - ./app/static:/static
         ports:
             - 80:80
             - 443:443
