@@ -34,6 +34,7 @@ services:
         tty: true
         volumes:
             - /etc/nginx/sites-enabled/onlinejudge:/etc/nginx/sites-enabled/onlinejudge
+            - /etc/letsencrypt/live/staoj.com:/etc/letsencrypt/live/staoj.com
         ports:
             - "80:80"
             - "443:443"
