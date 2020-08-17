@@ -37,8 +37,10 @@ services:
             - /etc/letsencrypt/live/staoj.com/fullchain.pem:/etc/letsencrypt/live/staoj.com/fullchain.pem
             - /etc/letsencrypt/live/staoj.com/privkey.pem:/etc/letsencrypt/live/staoj.com/privkey.pem
         ports:
-            - "80:80"
-            - "443:443"
+            - 80:80
+            - 443:443
+        links:
+            - backend
         networks:
             - staoj
 
