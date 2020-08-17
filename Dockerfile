@@ -21,6 +21,6 @@ ENV FLASK_APP onlinejudge.py
 RUN chown -R onlinejudge:onlinejudge ./
 USER onlinejudge
 
-EXPOSE 5000
+EXPOSE 80 443
 ENTRYPOINT ["./boot.sh"]
 
