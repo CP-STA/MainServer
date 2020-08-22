@@ -178,7 +178,7 @@ def submission_list():
 
 @app.route('/api/submission/<int:id>')
 def get_submission(id):
-    submission = current_user.submissions.filter_by(id=id).first()
+    submission = Submission.query.get(id)
 
     return jsonify({
         "progress": submission.get_progress(),
