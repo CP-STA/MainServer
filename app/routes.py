@@ -89,7 +89,7 @@ def problem(id):
     if form.validate_on_submit():
         if not current_user.is_authenticated:
             flash("You need to be logged in to perform this action.")
-        if form.code.data == "":
+        elif form.code.data == "":
             flash("The source code must not be empty.")
         elif sys.getsizeof(form.code.data) > 512000:
             flash("File size limit exceeded. The source code must be at most 512 kb.")
